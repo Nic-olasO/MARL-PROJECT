@@ -1,0 +1,34 @@
+# Core numerical and RL stack
+numpy
+scipy
+networkx
+torch
+gymnasium
+pettingzoo
+ray[rllib]
+
+# MARL benchmarking and PyTorch RL tooling
+torchrl
+benchmarl
+
+# Experiment configuration and tracking
+hydra-core
+omegaconf
+tensorboard
+wandb
+
+# Development and validation
+pytest
+ruff
+mypy
+pre-commit
+
+# Local document analysis helper used in this project
+pypdf
+
+# Domain simulators can be added once the environment target is chosen:
+# mujoco, pybullet, pyflyt, sumo-rl, or simulator-specific SDKs.
+#
+# Optional evaluation tooling:
+# marl-eval is commonly referenced by BenchMARL docs, but is not currently
+# available from the active PyPI index for this Python environment.
