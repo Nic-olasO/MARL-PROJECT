@@ -1,0 +1,14 @@
+.git
+.venv
+.tmp
+.vscode
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+runs
+wandb
+ray_results
+*.pdf
+MARL-Papers

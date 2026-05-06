@@ -1,0 +1,8 @@
+# Lean first-pass runtime for the PettingZoo smoke simulation.
+#
+# Keep this file intentionally small so `docker compose up --build` proves the
+# basic MARL environment quickly. Put training, analysis, and experiment tooling
+# in the broader local environment until a heavier Docker target is needed.
+numpy>=1.26,<3
+gymnasium>=0.29,<1.2
+pettingzoo[classic]>=1.24,<2
