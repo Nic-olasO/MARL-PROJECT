@@ -17,3 +17,6 @@ wandb/
 mlruns/
 checkpoints/
 ray_results/
+
+# Keep research PDFs out of git history going forward.
+*.pdf

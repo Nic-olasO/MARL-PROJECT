@@ -1,0 +1,21 @@
+name: Block PDF files
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  block-pdfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Reject committed PDFs
+        shell: bash
+        run: |
+          if git ls-files '*.pdf' | grep -q .; then
+            echo "PDF files are not allowed in this repository:"
+            git ls-files '*.pdf'
+            exit 1
+          fi
