@@ -24,6 +24,7 @@ wandb>=0.17,<1.0
 # Analysis, plotting, and developer tooling
 pandas>=2.2,<3.0
 matplotlib>=3.8,<4.0
+pillow>=10,<12
 tqdm>=4.66,<5.0
 rich>=13.7,<15.0
 pytest>=8.0,<9.0

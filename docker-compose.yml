@@ -55,6 +55,20 @@ services:
       PYGAME_HIDE_SUPPORT_PROMPT: "1"
     command: python -m marl_practice.envs.task_allocation_env
 
+  drone-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marl-project:dev
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - marl-pip-cache:/root/.cache/pip
+    environment:
+      PYTHONPATH: /workspace/src
+      PYGAME_HIDE_SUPPORT_PROMPT: "1"
+    command: python -m marl_practice.visualization.drone_video --output runs/drone_demo.gif --trace-output runs/drone_demo_trace.json
+
   test:
     build:
       context: .

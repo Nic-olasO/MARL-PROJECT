@@ -40,8 +40,28 @@ Run additional local checks:
 docker compose run --rm pettingzoo
 docker compose run --rm matrix
 docker compose run --rm task-demo
+docker compose run --rm drone-demo
 docker compose run --rm test
 ```
+
+## Drone Simulation and Video
+
+`DroneSearchEnv` is a small PettingZoo `ParallelEnv` for multi-drone target
+search. It models drones on a 2D grid, active targets, no-fly zones, collisions,
+and safety counters. The first renderer intentionally produces a simple animated
+GIF so backend experiments can hand the UI a concrete artifact without requiring
+a browser or 3D engine.
+
+Generate a local demo trace and video:
+
+```powershell
+docker compose run --rm drone-demo
+```
+
+Outputs:
+
+- `runs/drone_demo.gif`
+- `runs/drone_demo_trace.json`
 
 ## Task-Allocation Simulation
 
