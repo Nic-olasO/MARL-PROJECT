@@ -4,6 +4,7 @@ All notable updates to this MARL simulation repository will be tracked here.
 
 ## 2026-05-05
 
+- Added JSONL episode logging, random/scripted task-allocation baselines, and safety violation summaries.
 - Added a larger paper batch to the research matrix, covering Markov games, early cooperative MARL, game-theoretic learning, deep MARL stability, safe MARL, mean-field MARL, and LLM-based multi-agent systems.
 - Added research-tracking docs for the literature matrix, paper notes, and open research questions.
 - Extended `TaskAllocationEnv` with configurable reward modes, view radius, and richer metrics.

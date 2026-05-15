@@ -81,6 +81,8 @@ class TaskAllocationEnv(ParallelEnv):
         self.tasks: list[Task] = []
         self.steps = 0
         self.invalid_serves: dict[str, int] = {}
+        self.agent_collisions: dict[str, int] = {}
+        self.collision_events = 0
         self.np_random = np.random.default_rng()
 
     def observation_space(self, agent: str) -> spaces.Box:
@@ -107,6 +109,8 @@ class TaskAllocationEnv(ParallelEnv):
             for _ in range(self.num_tasks)
         ]
         self.invalid_serves = {agent: 0 for agent in self.agents}
+        self.agent_collisions = {agent: 0 for agent in self.agents}
+        self.collision_events = 0
 
         observations = {agent: self._observe(agent) for agent in self.agents}
         infos = {agent: self._info(agent) for agent in self.agents}
@@ -135,6 +139,7 @@ class TaskAllocationEnv(ParallelEnv):
             next_position = self.agent_positions[agent] + move
             self.agent_positions[agent] = np.clip(next_position, 0, self.grid_size - 1)
 
+        self._record_agent_collisions()
         self._apply_completion_rewards(rewards, serving_agents)
         for agent in invalid_servers:
             rewards[agent] -= 0.05
@@ -193,6 +198,35 @@ class TaskAllocationEnv(ParallelEnv):
     def completed_task_count(self) -> int:
         return self.num_tasks - self.active_task_count
 
+    def safety_summary(self) -> dict[str, object]:
+        """Return JSON-serializable per-episode safety violation counts."""
+        invalid_serves_by_agent = {
+            agent: self.invalid_serves.get(agent, 0)
+            for agent in self.possible_agents
+        }
+        collisions_by_agent = {
+            agent: self.agent_collisions.get(agent, 0)
+            for agent in self.possible_agents
+        }
+        by_agent = {
+            agent: {
+                "invalid_serves": invalid_serves_by_agent[agent],
+                "collisions": collisions_by_agent[agent],
+                "total": invalid_serves_by_agent[agent] + collisions_by_agent[agent],
+            }
+            for agent in self.possible_agents
+        }
+        invalid_serves_total = sum(invalid_serves_by_agent.values())
+        collision_involvements = sum(collisions_by_agent.values())
+        return {
+            "episode_step": self.steps,
+            "invalid_serves": invalid_serves_total,
+            "collision_events": self.collision_events,
+            "collision_involvements": collision_involvements,
+            "total_violations": invalid_serves_total + self.collision_events,
+            "by_agent": by_agent,
+        }
+
     def _observe(self, agent: str) -> np.ndarray:
         position = self.agent_positions[agent].astype(np.float32)
         nearest = self._nearest_active_task(position)
@@ -235,6 +269,19 @@ class TaskAllocationEnv(ParallelEnv):
                 self.tasks[idx] = Task(position=task.position, active=False)
                 return True
         return False
+
+    def _record_agent_collisions(self) -> None:
+        positions: dict[tuple[int, int], list[str]] = {}
+        for agent in self.agents:
+            position = self.agent_positions[agent]
+            positions.setdefault((int(position[0]), int(position[1])), []).append(agent)
+
+        for collided_agents in positions.values():
+            if len(collided_agents) < 2:
+                continue
+            self.collision_events += 1
+            for agent in collided_agents:
+                self.agent_collisions[agent] = self.agent_collisions.get(agent, 0) + 1
 
     def _apply_completion_rewards(
         self,

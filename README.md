@@ -49,7 +49,18 @@ Key files:
 - `src/marl_practice/training/rllib_env.py`: optional RLlib wrapper and
   registration helper.
 - `configs/ippo_task_allocation.yaml`: first IPPO-style training config.
+- `src/marl_practice/baselines/`: random and greedy scripted baselines.
+- `src/marl_practice/logging/`: JSONL episode logging helpers.
 - `tests/`: API, config, and wrapper smoke tests.
+
+Run a baseline episode and append the result to JSONL:
+
+```powershell
+python -m marl_practice.baselines --policy greedy --seed 7 --log-path runs/baselines.jsonl
+```
+
+Episode records include return, completed tasks, completion rate, per-agent
+returns, and safety summaries such as invalid serves and collision counts.
 
 ## Research Tracking
 

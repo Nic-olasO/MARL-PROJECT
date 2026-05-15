@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 from pettingzoo.test import parallel_api_test
 
@@ -131,3 +133,65 @@ def test_info_metrics_track_progress_and_invalid_serves():
         "invalid_serves": 1,
     }
     assert infos["agent_1"]["invalid_serves"] == 0
+
+
+def test_safety_summary_tracks_invalid_serves_and_collisions():
+    env = TaskAllocationEnv(num_agents=2, num_tasks=1, grid_size=5, max_cycles=5)
+    env.reset(seed=23)
+    env.agent_positions["agent_0"] = np.array([1, 1], dtype=np.int32)
+    env.agent_positions["agent_1"] = np.array([1, 1], dtype=np.int32)
+    env.tasks = [Task(position=np.array([4, 4], dtype=np.int32), active=True)]
+
+    env.step({"agent_0": env.SERVE, "agent_1": 0})
+
+    assert env.safety_summary() == {
+        "episode_step": 1,
+        "invalid_serves": 1,
+        "collision_events": 1,
+        "collision_involvements": 2,
+        "total_violations": 2,
+        "by_agent": {
+            "agent_0": {
+                "invalid_serves": 1,
+                "collisions": 1,
+                "total": 2,
+            },
+            "agent_1": {
+                "invalid_serves": 0,
+                "collisions": 1,
+                "total": 1,
+            },
+        },
+    }
+    json.dumps(env.safety_summary())
+
+
+def test_safety_summary_resets_each_episode():
+    env = TaskAllocationEnv(num_agents=2, num_tasks=1, grid_size=5)
+    env.reset(seed=29)
+    env.agent_positions["agent_0"] = np.array([2, 2], dtype=np.int32)
+    env.agent_positions["agent_1"] = np.array([2, 2], dtype=np.int32)
+    env.tasks = [Task(position=np.array([0, 0], dtype=np.int32), active=True)]
+
+    env.step({"agent_0": env.SERVE, "agent_1": 0})
+    env.reset(seed=31)
+
+    assert env.safety_summary() == {
+        "episode_step": 0,
+        "invalid_serves": 0,
+        "collision_events": 0,
+        "collision_involvements": 0,
+        "total_violations": 0,
+        "by_agent": {
+            "agent_0": {
+                "invalid_serves": 0,
+                "collisions": 0,
+                "total": 0,
+            },
+            "agent_1": {
+                "invalid_serves": 0,
+                "collisions": 0,
+                "total": 0,
+            },
+        },
+    }
