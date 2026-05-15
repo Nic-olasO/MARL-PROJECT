@@ -70,6 +70,18 @@ from this repository.
 
 Project updates are tracked in `CHANGELOG.md`.
 
+## GitHub Pull Agent
+
+Use the local pull watcher when multiple people or tools are pushing to GitHub:
+
+```bash
+python scripts/github_pull_agent.py --poll-seconds 60
+```
+
+It checks the current branch's upstream, skips unsafe pulls when your worktree
+has local changes, and only pulls with `--ff-only`. More details live in
+`docs/github_pull_agent.md`.
+
 ## Notes
 
 - `requirements.txt` tracks the broader research stack.

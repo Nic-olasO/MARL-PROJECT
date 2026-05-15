@@ -1,8 +1,8 @@
 param(
     [string]$AgentName = "Marlowe",
     [string]$RepositoryPath = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
-    [string]$Remote = "origin",
-    [string]$Branch = "main",
+    [string]$Remote = "",
+    [string]$Branch = "",
     [int]$PollSeconds = 60,
     [string]$LogPath = "",
     [switch]$Once
@@ -69,17 +69,84 @@ function Test-CleanWorktree {
     return -not $status
 }
 
-function Sync-IfBehind {
-    Write-AgentLog "Checking $Remote/$Branch from $RepositoryPath"
+function Select-FirstGitLine {
+    param($Value)
 
-    Invoke-Git fetch --prune $Remote $Branch | Out-Null
+    if ($null -eq $Value) {
+        return ""
+    }
+
+    if ($Value -is [array]) {
+        if ($Value.Count -eq 0) {
+            return ""
+        }
+        return [string]$Value[0]
+    }
+
+    return [string]$Value
+}
+
+function Get-CurrentBranch {
+    $branch = Select-FirstGitLine (Invoke-Git symbolic-ref --quiet --short HEAD)
+    if (-not $branch) {
+        throw "repository is not on a branch; detached HEAD is not supported"
+    }
+    return $branch
+}
+
+function Get-WatchTarget {
+    $currentBranch = Get-CurrentBranch
+    $targetRemote = $Remote
+    $targetBranch = $Branch
+
+    if (-not $targetRemote) {
+        try {
+            $targetRemote = Select-FirstGitLine (Invoke-Git config --get "branch.$currentBranch.remote")
+        }
+        catch {
+            $targetRemote = ""
+        }
+    }
+
+    if (-not $targetBranch) {
+        try {
+            $mergeRef = Select-FirstGitLine (Invoke-Git config --get "branch.$currentBranch.merge")
+        }
+        catch {
+            $mergeRef = ""
+        }
+        if ($mergeRef) {
+            $targetBranch = $mergeRef -replace '^refs/heads/', ''
+        }
+    }
+
+    $targetRemote = Select-FirstGitLine $targetRemote
+    $targetBranch = Select-FirstGitLine $targetBranch
+
+    if (-not $targetRemote -or -not $targetBranch) {
+        throw "current branch '$currentBranch' does not have an upstream; set one with 'git branch --set-upstream-to <remote>/<branch>' or pass -Remote and -Branch"
+    }
+
+    return [PSCustomObject]@{
+        CurrentBranch = $currentBranch
+        Remote = $targetRemote
+        Branch = $targetBranch
+        Ref = "$targetRemote/$targetBranch"
+    }
+}
+
+function Sync-IfBehind {
+    $target = Get-WatchTarget
+    Write-AgentLog "Checking $($target.Ref) for local branch $($target.CurrentBranch) from $RepositoryPath"
+
+    Invoke-Git fetch --prune $target.Remote | Out-Null
 
     if (-not (Test-CleanWorktree)) {
         Write-AgentLog "Skipped pull: worktree has local changes."
         return
     }
 
-    $counts = (Invoke-Git rev-list --left-right --count "HEAD...$Remote/$Branch").Trim() -split "\s+"
+    $counts = (Invoke-Git rev-list --left-right --count "HEAD...$($target.Ref)").Trim() -split "\s+"
     $ahead = [int]$counts[0]
     $behind = [int]$counts[1]
 
@@ -94,7 +161,7 @@ function Sync-IfBehind {
     }
 
     Write-AgentLog "Pulling $behind new commit(s) with --ff-only."
-    Invoke-Git pull --ff-only $Remote $Branch | ForEach-Object {
+    Invoke-Git pull --ff-only $target.Remote $target.Branch | ForEach-Object {
         Write-AgentLog $_
     }
 }
