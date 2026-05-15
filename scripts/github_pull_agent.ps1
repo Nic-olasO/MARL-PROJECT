@@ -1,4 +1,5 @@
 param(
+    [string]$AgentName = "Marlowe",
     [string]$RepositoryPath = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
     [string]$Remote = "origin",
     [string]$Branch = "main",
@@ -21,7 +22,7 @@ if ($logDir) {
 function Write-AgentLog {
     param([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    "[$timestamp] $Message" | Tee-Object -FilePath $LogPath -Append
+    "[$timestamp] [$AgentName] $Message" | Tee-Object -FilePath $LogPath -Append
 }
 
 function Invoke-Git {

@@ -3,7 +3,7 @@ set -eu
 
 pdfs="$(git ls-files '*.pdf')"
 if [ -n "$pdfs" ]; then
-  echo "Push blocked: PDF files are not allowed in this repository." >&2
+  echo "Paperlock blocked this push: PDF files are not allowed in this repository." >&2
   echo "$pdfs" >&2
   exit 1
 fi
