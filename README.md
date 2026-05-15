@@ -2,6 +2,13 @@
 
 First MARL project for NPS.
 
+This repository now combines two complementary tracks:
+
+- `src/marl_sim`: dependency-light smoke tests, including a matrix
+  coordination game and PettingZoo Tic-Tac-Toe check.
+- `src/marl_practice`: a PettingZoo `ParallelEnv` task-allocation simulator
+  with RLlib registration helpers, tests, Hydra config, and research tracking.
+
 ## Docker Simulation Environment
 
 Build and run the lean MARL smoke-test sandbox:
@@ -21,11 +28,44 @@ The default command runs a small PettingZoo Tic-Tac-Toe smoke simulation from
 multi-agent simulation stack is installed before we add larger benchmarks or
 training algorithms.
 
+Run additional local checks:
+
+```powershell
+docker compose run --rm matrix
+docker compose run --rm task-demo
+docker compose run --rm test
+```
+
+## Task-Allocation Simulation
+
+`TaskAllocationEnv` is a small PettingZoo `ParallelEnv` where multiple agents
+move on a 2D grid and complete active tasks. It is intentionally simple so it
+can become the baseline target for IPPO/MAPPO, QMIX, VDN, and reward-shaping
+experiments.
+
+Key files:
+
+- `src/marl_practice/envs/task_allocation_env.py`: simulator implementation.
+- `src/marl_practice/training/rllib_env.py`: optional RLlib wrapper and
+  registration helper.
+- `configs/ippo_task_allocation.yaml`: first IPPO-style training config.
+- `tests/`: API, config, and wrapper smoke tests.
+
+## Research Tracking
+
+Use `docs/research/README.md` to track the literature matrix, paper notes, and
+implementation questions. `MARL-Papers/` stores the larger paper collection
+from this repository.
+
+Project updates are tracked in `CHANGELOG.md`.
+
 ## Notes
 
 - `requirements.txt` tracks the broader research stack.
 - `requirements-docker.txt` is intentionally minimal: NumPy, Gymnasium, and
-  PettingZoo classic environments only.
+  PettingZoo classic environments plus pytest for smoke tests.
+- `requirements-marl.txt` captures the fuller stack from the task-allocation
+  scaffold.
 - Heavier tooling such as Torch, SciPy, TensorBoard, SuperSuit, RLlib,
   BenchMARL, MuJoCo, or simulator-specific SDKs can be installed locally from
   the broader requirements first, then promoted into a heavier Docker target

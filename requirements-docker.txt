@@ -6,3 +6,4 @@
 numpy>=1.26,<3
 gymnasium>=0.29,<1.2
 pettingzoo[classic]>=1.24,<2
+pytest>=8,<9

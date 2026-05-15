@@ -1,0 +1,38 @@
+# Hydra-compatible IPPO experiment scaffold. Importing this file should not
+# import RLlib; training entrypoints can resolve the dotted callables lazily.
+defaults:
+  - _self_
+
+experiment:
+  name: ippo_task_allocation
+  seed: 7
+
+env:
+  name: marl_practice_task_allocation_v0
+  creator: marl_practice.training.rllib_env:rllib_env_creator
+  register: marl_practice.training.rllib_env:register_task_allocation_env
+  config:
+    num_agents: 3
+    num_tasks: 4
+    grid_size: 8
+    max_cycles: 50
+
+algorithm:
+  name: IPPO
+  framework: torch
+  rollout_fragment_length: 32
+  train_batch_size: 128
+  num_rollout_workers: 0
+  policies:
+    shared_policy:
+      policy_class: null
+      observation_space: null
+      action_space: null
+      config: {}
+  policy_mapping_fn: shared_policy
+
+training:
+  stop:
+    training_iteration: 1
+  checkpoint_frequency: 0
+
