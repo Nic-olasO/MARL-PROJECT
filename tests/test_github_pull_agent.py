@@ -44,8 +44,8 @@ def test_sync_if_behind_fast_forwards_clean_worktree(tmp_path):
     git(seed, "branch", "-M", "main")
     git(seed, "push", "-u", "origin", "main")
 
-    git(tmp_path, "clone", str(remote), str(local))
-    git(tmp_path, "clone", str(remote), str(other))
+    git(tmp_path, "clone", "-b", "main", str(remote), str(local))
+    git(tmp_path, "clone", "-b", "main", str(remote), str(other))
     git(local, "checkout", "-b", "feature/sync-agent")
     git(local, "push", "-u", "origin", "feature/sync-agent")
     git(other, "fetch", "origin")
@@ -71,8 +71,8 @@ def test_sync_if_behind_skips_dirty_worktree(tmp_path):
     git(seed, "branch", "-M", "main")
     git(seed, "push", "-u", "origin", "main")
 
-    git(tmp_path, "clone", str(remote), str(local))
-    git(tmp_path, "clone", str(remote), str(other))
+    git(tmp_path, "clone", "-b", "main", str(remote), str(local))
+    git(tmp_path, "clone", "-b", "main", str(remote), str(other))
     commit_file(other, "new.txt", "remote update\n", "remote update")
     git(other, "push", "origin", "main")
     (local / "local.txt").write_text("local change\n", encoding="utf-8")

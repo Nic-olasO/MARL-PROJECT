@@ -17,6 +17,12 @@ Build and run the lean MARL smoke-test sandbox:
 docker compose up --build
 ```
 
+Run the explicit PettingZoo smoke service:
+
+```powershell
+docker compose run --rm pettingzoo
+```
+
 Run an interactive shell in the container:
 
 ```powershell
@@ -31,6 +37,7 @@ training algorithms.
 Run additional local checks:
 
 ```powershell
+docker compose run --rm pettingzoo
 docker compose run --rm matrix
 docker compose run --rm task-demo
 docker compose run --rm test
@@ -74,8 +81,8 @@ Project updates are tracked in `CHANGELOG.md`.
 
 Use the local pull watcher when multiple people or tools are pushing to GitHub:
 
-```bash
-python scripts/github_pull_agent.py --poll-seconds 60
+```powershell
+.\scripts\github_pull_agent.ps1 -PollSeconds 60
 ```
 
 It checks the current branch's upstream, skips unsafe pulls when your worktree
