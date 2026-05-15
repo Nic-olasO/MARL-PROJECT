@@ -69,5 +69,21 @@ services:
       PYGAME_HIDE_SUPPORT_PROMPT: "1"
     command: python -m pytest
 
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marl-project:dev
+    working_dir: /workspace
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workspace
+      - marl-pip-cache:/root/.cache/pip
+    environment:
+      PYTHONPATH: /workspace/src
+      PYGAME_HIDE_SUPPORT_PROMPT: "1"
+    command: python -m marl_practice.dashboard --host 0.0.0.0 --port 8000 --log-path runs/baselines.jsonl
+
 volumes:
   marl-pip-cache:

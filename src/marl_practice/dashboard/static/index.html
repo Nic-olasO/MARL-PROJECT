@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MARL Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MARL Project</p>
+        <h1>Task-Allocation Dashboard</h1>
+      </div>
+      <form class="toolbar" id="log-form">
+        <label for="log-path">Episode log</label>
+        <input id="log-path" name="log-path" value="runs/baselines.jsonl" />
+        <button type="submit">Refresh</button>
+      </form>
+    </header>
+
+    <main>
+      <section class="status-row" aria-live="polite">
+        <div class="status-pill" id="status">Loading episode data</div>
+        <select id="policy-filter" aria-label="Filter by policy">
+          <option value="all">All policies</option>
+        </select>
+      </section>
+
+      <section class="metric-grid" aria-label="Episode summary metrics">
+        <article class="metric">
+          <span>Episodes</span>
+          <strong id="metric-episodes">0</strong>
+        </article>
+        <article class="metric">
+          <span>Average return</span>
+          <strong id="metric-return">0.00</strong>
+        </article>
+        <article class="metric">
+          <span>Completion rate</span>
+          <strong id="metric-completion">0%</strong>
+        </article>
+        <article class="metric alert">
+          <span>Safety violations</span>
+          <strong id="metric-violations">0</strong>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel wide">
+          <div class="panel-heading">
+            <h2>Episode Return</h2>
+            <span id="return-range">No data</span>
+          </div>
+          <div class="chart" id="return-chart"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <h2>Completion</h2>
+            <span>Per episode</span>
+          </div>
+          <div class="bar-list" id="completion-bars"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <h2>Safety</h2>
+            <span>Invalid serves and collisions</span>
+          </div>
+          <div class="bar-list" id="safety-bars"></div>
+        </article>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-heading">
+          <h2>Recent Episodes</h2>
+          <span id="table-count">0 rows</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Seed</th>
+                <th>Policy</th>
+                <th>Steps</th>
+                <th>Return</th>
+                <th>Completed</th>
+                <th>Completion</th>
+                <th>Violations</th>
+              </tr>
+            </thead>
+            <tbody id="episodes-table"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

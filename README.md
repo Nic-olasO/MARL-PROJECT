@@ -69,6 +69,24 @@ python -m marl_practice.baselines --policy greedy --seed 7 --log-path runs/basel
 Episode records include return, completed tasks, completion rate, per-agent
 returns, and safety summaries such as invalid serves and collision counts.
 
+## Dashboard
+
+Start the local dashboard after logging one or more baseline episodes:
+
+```bash
+python -m marl_practice.dashboard --log-path runs/baselines.jsonl
+```
+
+Then open `http://127.0.0.1:8000`. The dashboard reads JSONL episode records
+and shows returns, completion rates, safety violations, policy filters, and
+recent runs.
+
+Docker users can run the same UI with:
+
+```bash
+docker compose run --rm --service-ports dashboard
+```
+
 ## Research Tracking
 
 Use `docs/research/README.md` to track the literature matrix, paper notes, and
