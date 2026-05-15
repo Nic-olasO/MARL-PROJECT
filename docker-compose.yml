@@ -67,7 +67,7 @@ services:
     environment:
       PYTHONPATH: /workspace/src
       PYGAME_HIDE_SUPPORT_PROMPT: "1"
-    command: python -m marl_practice.visualization.drone_video --output runs/drone_demo.gif --trace-output runs/drone_demo_trace.json
+    command: python -m marl_practice.visualization.drone_video --output runs/drone_demo.gif --trace-output runs/drone_demo_trace.json --log-path runs/drone_episodes.jsonl
 
   test:
     build:

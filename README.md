@@ -63,6 +63,12 @@ Outputs:
 - `runs/drone_demo.gif`
 - `runs/drone_demo_trace.json`
 
+Append the drone run to the shared JSONL episode log:
+
+```powershell
+docker compose run --rm drone-demo python -m marl_practice.visualization.drone_video --log-path runs/drone_episodes.jsonl
+```
+
 ## Task-Allocation Simulation
 
 `TaskAllocationEnv` is a small PettingZoo `ParallelEnv` where multiple agents

@@ -8,6 +8,7 @@ from typing import Any
 from PIL import Image, ImageDraw
 
 from marl_practice.envs.drone_search_env import DroneSearchEnv
+from marl_practice.logging import write_episode_record
 
 
 class GreedyDronePolicy:
@@ -89,6 +90,31 @@ def render_trace_to_gif(
     return output
 
 
+def drone_episode_record(
+    trace: dict[str, Any],
+    video_path: str | Path,
+    trace_path: str | Path,
+) -> dict[str, Any]:
+    """Build the shared JSONL episode record for a drone demo run."""
+
+    return {
+        "seed": trace["seed"],
+        "policy_name": trace["policy_name"],
+        "episode_return": trace["episode_return"],
+        "steps": trace["steps"],
+        "completed_tasks": trace["completed_targets"],
+        "completed_targets": trace["completed_targets"],
+        "completion_rate": trace["completion_rate"],
+        "safety_summary": trace["safety_summary"],
+        "per_agent_returns": trace["per_agent_returns"],
+        "artifact_paths": {
+            "video": str(video_path),
+            "trace": str(trace_path),
+        },
+        "environment": "drone_search_v0",
+    }
+
+
 def _render_frame(frame: dict[str, Any], cell_size: int) -> Image.Image:
     grid_size = int(frame["grid_size"])
     margin = 36
@@ -167,6 +193,12 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
     parser.add_argument("--num-no-fly-zones", type=int, default=6)
     parser.add_argument("--output", type=Path, default=Path("runs/drone_demo.gif"))
     parser.add_argument("--trace-output", type=Path, default=Path("runs/drone_demo_trace.json"))
+    parser.add_argument(
+        "--log-path",
+        type=Path,
+        default=None,
+        help="Optional JSONL path where the drone episode summary should be appended.",
+    )
     args = parser.parse_args(argv)
 
     trace = run_drone_demo(
@@ -180,9 +212,16 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
     render_trace_to_gif(trace, args.output)
     args.trace_output.parent.mkdir(parents=True, exist_ok=True)
     args.trace_output.write_text(json.dumps(trace, indent=2, sort_keys=True), encoding="utf-8")
+    if args.log_path is not None:
+        write_episode_record(
+            args.log_path,
+            drone_episode_record(trace, args.output, args.trace_output),
+        )
     print(json.dumps({key: trace[key] for key in trace if key != "frames"}, sort_keys=True))
     print(f"Wrote {args.output}")
     print(f"Wrote {args.trace_output}")
+    if args.log_path is not None:
+        print(f"Appended {args.log_path}")
     return trace
 
 
